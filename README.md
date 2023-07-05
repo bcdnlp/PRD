@@ -53,11 +53,11 @@ There is no codes of generating reviews for Vicuna80 since they are provided in 
 
 ```bash
 # discuss on LFQA
-python results/lfqa/gather_all.py
+python peer_discussion/gather_all_lfqa.py
 python peer_discussion/discuss_lfqa.py
 
 # discuss on Vicuna80
-python results/vicuna80/gather_all.py
+python peer_discussion/gather_all_vicuna80.py
 python peer_discussion/discuss_vicuna80.py
 ```
 
