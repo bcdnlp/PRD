@@ -1,8 +1,8 @@
 # PRD: Peer Rank and Discussion Improve Large Language Model based Evaluations
 
-Dataset and codes of our paper [PRD]().
+| [Paper]() | [Demo](http://bcdnlp.github.io/PR_LLM_EVAL) |
 
-Peer Rank (PD) process:
+Peer Rank (PR) process:
 
 ![Peer Rank (PR) process](assets/peer_rank.png)
 
@@ -37,6 +37,8 @@ All codes are run in the root folder. Please follow the bash commands to run cor
 (To Be Added)
 
 ### Peer Discussion
+
+Before running any python script, please make sure the file `peer_discussion/config.yml` contains correct configurations you need.
 
 #### Reviews Generation
 
