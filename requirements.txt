@@ -1,0 +1,6 @@
+anthropic
+html2text
+openai
+pandas
+tqdm
+yaml
