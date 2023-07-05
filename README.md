@@ -2,11 +2,11 @@
 
 | [Paper]() | [Demo](http://bcdnlp.github.io/PR_LLM_EVAL) |
 
-Peer Rank (PR) process:
+## Peer Rank (PR) process:
 
 ![Peer Rank (PR) process](assets/peer_rank.png)
 
-Peer Discussion (PD) process:
+## Peer Discussion (PD) process:
 
 ![Peer Discussion (PD) process](assets/peer_discussion.png)
 
@@ -19,14 +19,15 @@ conda activate prd
 
 # install from the requirement file by pip
 pip install -r requirement.txt
-
-# install pytorch and cuda
-conda install pytorch pytorch-cuda=11.7 -c pytorch -c nvidia
 ```
 
 ## Datasets
 
 For information about datasets, please refer to the [README](data/README.md) file.
+
+## Generated Results
+
+For information about generated results, please refer to the [README](results/README.md) file.
 
 ## Run
 
@@ -52,15 +53,13 @@ There is no codes of generating reviews for Vicuna80 since they are provided in 
 
 ```bash
 # discuss on LFQA
+python results/lfqa/gather_all.py
 python peer_discussion/discuss_lfqa.py
 
 # discuss on Vicuna80
+python results/vicuna80/gather_all.py
 python peer_discussion/discuss_vicuna80.py
 ```
-
-## Results
-
-For information about results, please refer to the [README](results/README.md) file.
 
 ## Citation
 
