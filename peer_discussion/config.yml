@@ -1,0 +1,40 @@
+# Keys
+openai_key: keys/openai_key
+openai_org_id: keys/openai_org_id
+anthropic_key: keys/anthropic_key
+
+# Generation
+model_reviewer1: gpt-3.5-turbo-0613 # gpt-4-0613, gpt-3.5-turbo-0613, claude-1
+model_reviewer2: claude-1
+temperature_reviewer1: 0.2
+temperature_reviewer2: 0.2
+
+# Discuss
+reviewer1: gpt35 # gpt4-*, gpt35-*, claude-*
+reviewer2: claude # reviewers' names
+add_prompt_each_turn: True # True, False
+add_role_prompt: True # True, False
+max_turn: 4
+only_diff: False # True, False
+
+# LFQA
+mode: explicit # explicit, implicit
+
+lfqa_path: data/lfqa/experts_pairwise_human_preferences.jsonl
+lfqa_results_folder: results/lfqa/
+lfqa_review_file: rating-{reviewer}-temperature-{temperature}-{mode}.json
+lfqa_discuss_log_file: "{reviewer1}-{reviewer2}-discussion-{multi}-{mode}-log.txt"
+lfqa_all_data: all-data-{reviewer1}-{reviewer2}-{multi}-{mode}.json
+
+# Vicuna
+model1: gpt35
+model2: vicuna-13b
+
+vicuna_path: data/vicuna80/vicuna_benchmark_human_annotations.csv
+vicuna_question_path: data/vicuna80/vicuna_questions.jsonl
+vicuna_answer_path: data/vicuna80/answer_{model}.jsonl
+vicuna_review_file: data/vicuna80/answer_{model1}-vs-answer_{model2}-{reviewer}-reviewer-threeclass.jsonl
+vicuna_results_folder: results/vicuna80/
+vicuna_discuss_log_file: "{reviewer1}-{reviewer2}-discussion-{multi}-{model1}-{model2}-log.txt"
+vicuna_all_data: all-data-{reviewer1}-{reviewer2}-{multi}-{model1}-{model2}.json
+
