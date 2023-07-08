@@ -2,7 +2,7 @@ import anthropic_api
 import openai_api
 import yaml
 
-with open('peer_discussion/config.yml') as f:
+with open('config.yml') as f:
     config = yaml.safe_load(f)
 
 def api_call(reviewer_name, content, reviewer_no):

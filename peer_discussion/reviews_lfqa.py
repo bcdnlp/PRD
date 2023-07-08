@@ -8,7 +8,7 @@ import yaml
 from html2text import html2text
 from tqdm import tqdm
 
-with open('peer_discussion/config.yml') as f:
+with open('config.yml') as f:
     config = yaml.safe_load(f)
 
 import anthropic_api

@@ -7,7 +7,7 @@ import pandas as pd
 import yaml
 from html2text import html2text
 
-with open('peer_discussion/config.yml') as f:
+with open('config.yml') as f:
     config = yaml.safe_load(f)
 
 # reviews from reviewer1

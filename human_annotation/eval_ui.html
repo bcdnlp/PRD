@@ -1,0 +1,551 @@
+<script src="https://assets.crowd.aws/crowd-html-elements.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.3.1.js" integrity="sha256-2Kok7MbOyxpgUVvAk/HJ2jigOSYS2auK4Pfzbm7uH60="
+  crossorigin="anonymous"></script>
+
+<style>
+  body {
+    padding-left: 20px;
+    margin-bottom: 20px;
+  }
+
+  .outer-container {
+    display: flex;
+    justify-content: space-around;
+    margin: 20px;
+  }
+
+  .inner-container {
+    margin-left: auto;
+    padding-left: 20px;
+    word-wrap: break-word;
+  }
+
+
+  .vertical-separator {
+    border: solid 1px #d5dbdb;
+  }
+
+  .mg-10 {
+    margin: 10px;
+  }
+
+  .big-btn {
+    min-width: 100px;
+    margin: 10px;
+    height: 75px;
+    background-color: salmon;
+  }
+
+  datalist {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    width: 500px;
+  }
+
+  input[type='range'] {
+    width: 500px;
+    margin: 0;
+  }
+
+  crowd-button {
+    display: none;
+  }
+
+</style>
+
+<crowd-form answer-format="flatten-objects">
+  <div>
+    <h1>Task</h1>
+    We would like to request your feedback on the performance of several AI assistants in response to the user question
+    displayed below.
+    <br><br>
+    Please consider the helpfulness, relevance, accuracy, level of details of their responses.
+    <br><br>
+    Then look at the pairwise comparisons and choose the best response, avoiding any potential bias, ensuring that the
+    order in which the responses were
+    presented does not affect your judgment.
+    <br><br>
+    For your reference, we also provide the review of GPT4 on the responses.
+    Since GPT4 has an order bias, we have provided the reviews of GPT4 on both (ResponseA, ResponseB) and (ResponseB, ResponseA)
+    as (Assistant 1, Assistant 2).
+  </div>
+  <div id="timer">
+  </div>
+  <h2>
+    Question:
+  </h2>
+  <div id="question">
+  </div>
+  <div id="data" hidden>
+    ${data}
+  </div>
+  <div class="mg-10">
+    <div id="btn-bar"></div>
+    <div id="tab-area-container"></div>
+  </div>
+  <crowd-button form-action="submit"></crowd-button>
+  <div>
+    <button id="next-btn" class="big-btn" type="button" class="mg-10" onclick="next_tab()">Next Tab</button>
+    <button id="save-btn" class="big-btn" type="button" class="mg-10" onclick="save_all()">Save Results</button>
+    <button id="submit-btn" class="big-btn" type="button" class="mg-10" onclick="submit_results()">Submit Results</button>
+  </div>
+  <div>
+    Saved data in JSON format:
+    <textarea id="data-save-area" readonly></textarea>
+  </div>
+</crowd-form>
+
+<script>
+  const data = JSON.parse($('#data').text());
+  $('#question').text(data.question.text);
+
+  const startTime = new Date();
+
+  const buttonBar = $('#btn-bar');
+
+  const tab_areas = [];
+
+  const save_record = {};
+
+  let tab_no = 0;
+
+  const next_tab = function() {
+    moveToTab((tab_no + 1) % tab_areas.length);
+  }
+
+  const moveToTab = function (tabno) {
+    if (tabno === 0) {
+      $('#next-btn').hide();
+      $('#submit-btn').show();
+    } else {
+      $('#next-btn').show();
+      $('#submit-btn').hide();
+    }
+    tab_no = tabno;
+    $('#tab-area').detach();
+    $('#tab-area-container').append(tab_areas[tab_no]);
+  }
+
+  const make_metric_tab_area = function (tab_idx) {
+    const metrics = data.metrics;
+    const response = data.responses[tab_idx - 1].text;
+    const tab_area =
+      $('<div>')
+        .attr({
+          id: 'tab-area',
+        })
+        .append(
+          $('<h2>').text('Response ' + tab_idx + ':')
+        )
+        .append(
+          $('<p>').text(response)
+        );
+
+    const table = $('<table>');
+
+    // add individual fields for each metric of the document
+    metrics.forEach(function (metric, idx) {
+      const metric_field =
+        $('<tr>')
+          .append(
+            $('<td>')
+              .append( // label
+                $('<label>').attr({ for: 'metric-' + idx, }).text(metric)
+              )
+          )
+          .append(
+            $('<td>')
+              .append( // input element
+                $('<input>')
+                  .attr({
+                    type: 'range',
+                    id: 'metric-' + idx, name: metric,
+                    min: 0, max: 10, value: 5,
+                    required: true,
+                    list: 'metric-scale',
+                  })
+                  .addClass('mg-10')
+                  .addClass('metric')
+                  .on('input', function () {
+                    $('#metric-' + idx + '-output').val($(this).val());
+                  })
+              )
+          )
+          .append(
+            $('<td>')
+              .append( // value display
+                $('<output>')
+                  .attr({
+                    id: 'metric-' + idx + '-output',
+                    name: 'metric-' + idx + '-output',
+                    for: 'metric-' + idx
+                  }).text('5')
+              )
+              .append('/10')
+          )
+      table.append($(metric_field));
+    })
+
+    table.append(
+      $('<tr>')
+        .append($('<td>'))
+        .append(
+          $('<td>')
+            .append(
+              $('<datalist>')
+                .attr({ id: 'metric-scale' })
+                .html(`
+              <option value="0">0</option>
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+              <option value="6">6</option>
+              <option value="7">7</option>
+              <option value="8">8</option>
+              <option value="9">9</option>
+              <option value="10">10</option>
+            `)
+            )
+        )
+    )
+
+    tab_area.append(table);
+
+    // area for explanations
+    const explanation_area =
+      $('<textarea>')
+        .attr({
+          id: 'explanation',
+          name: 'explanation',
+          placeholder: 'Please explain your choice.',
+          rows: 5,
+          cols: 150,
+        })
+        .addClass('mg-10')
+
+    tab_area.append(explanation_area);
+
+    return tab_area;
+  }
+
+  const make_overall_tab_area = function () {
+    const tab_area =
+      $('<div>')
+        .attr({
+          id: 'tab-area',
+        })
+        .append(
+          $('<h2>').text('Overall Comparisons')
+        );
+
+    const comparison_area =
+      $('<div>')
+        .addClass('outer-container')
+        .append(
+          $('<span>')
+            .addClass('inner-container')
+            .append(
+              $('<h2>').text('Response A')
+            )
+            .append($('<p>').attr({ id: 'response-a' }))
+        )
+        .append(
+          $('<span>')
+            .addClass('inner-container')
+            .append(
+              $('<h2>').text('Response B')
+            )
+            .append($('<p>').attr({ id: 'response-b' }))
+        )
+        .append(
+          $('<span>')
+            .addClass('inner-container')
+            .append(
+              $('<h2>').text("GPT4's Review of (ResponseA, ResponseB): ")
+            )
+            .append(
+              $('<p>').attr({ id: 'gpt4-review-forward' })
+            )
+        )
+        .append(
+          $('<span>')
+            .addClass('inner-container')
+            .append(
+              $('<h2>').text("GPT4's Review of (ResponseB, ResponseA): ")
+            )
+            .append(
+              $('<p>').attr({ id: 'gpt4-review-reverse' })
+            )
+        )
+
+    tab_area.append(comparison_area);
+
+    const num_responses = data.responses.length;
+
+    // add pairwise comparison fields
+    for (let i = 1; i < num_responses; i++) {
+      for (let j = i + 1; j <= num_responses; j++) {
+        tab_area.append(make_comparison(i, j));
+      }
+    }
+
+    return tab_area;
+  }
+
+  let cur_comparison_showhidebtn = null;
+
+  const displayResponseComparison = function (idxA, idxB) {
+    // index parameters are one's based
+    const responseA = data.responses[idxA - 1];
+    const responseB = data.responses[idxB - 1];
+    const gpt_review_forward = data.reviews.find(review => {
+      return review.answer1_id === responseA.response_id && review.answer2_id === responseB.response_id;
+    });
+    const gpt_review_reverse = data.reviews.find(review => {
+      return review.answer1_id === responseB.response_id && review.answer2_id === responseA.response_id;
+    });
+
+    $('#response-a').text(responseA.text);
+    $('#response-b').text(responseB.text);
+    $('#gpt4-review-forward').text(gpt_review_forward?.text ?? "No review available.");
+    $('#gpt4-review-reverse').text(gpt_review_reverse?.text ?? "No review available.");
+  }
+
+  const emptyResponseComparison = function () {
+    $('#response-a').text('');
+    $('#response-b').text('');
+    $('#gpt4-review-forward').text('');
+    $('#gpt4-review-reverse').text('');
+  }
+
+  const make_comparison = function (idxA, idxB) {
+    const name = idxA + '-vs-' + idxB;
+
+    const make_radiobtn = function (val) {
+      const radiobtn =
+        $('<input>')
+          .attr({
+            type: 'radio',
+            id: name + '-' + val,
+            name: name,
+            value: val,
+          })
+          .addClass('pairwise-threeclass')
+      return radiobtn;
+    }
+
+    // labels
+    const labelA = $('<label>').attr({ for: name + '-1', })
+      .text('Response ' + idxA + ' is better.');
+
+    const labelB = $('<label>').attr({ for: name + '-2', })
+      .text('Response ' + idxB + ' is better.');
+
+    const labelC = $('<label>').attr({ for: name + '-3', })
+      .text('The responses are EXACTLY equal in quality.');
+
+    const spanA = $('<span>').append(make_radiobtn(1)).append(labelA);
+    const spanB = $('<span>').append(make_radiobtn(2)).append(labelB);
+    const spanC = $('<span>').append(make_radiobtn(3)).append(labelC);
+
+    const explanation_area =
+      $('<textarea>')
+        .attr({
+          placeholder: 'Please explain your choice.',
+          rows: 5,
+          cols: 150
+        })
+        .addClass('mg-10')
+        .addClass('pairwise-explanation')
+    explanation_area.hide();
+
+    const showHideBtn =
+      $('<button>')
+        .attr({
+          id: 'show-hide-' + name,
+          type: 'button',
+        })
+        .addClass('show-hide-btn')
+        .addClass('mg-10')
+        .text('Click to Show Responses')
+        .on('click', function (event) {
+          if (cur_comparison_showhidebtn !== null) {
+            cur_comparison_showhidebtn.text('Click to Show Responses');
+            if (cur_comparison_showhidebtn.is(showHideBtn)) {
+              explanation_area.hide();
+              emptyResponseComparison();
+              cur_comparison_showhidebtn = null;
+              return;
+            } else {
+              cur_comparison_showhidebtn.nextAll('.pairwise-explanation').hide();
+            }
+          }
+          cur_comparison_showhidebtn = showHideBtn;
+          cur_comparison_showhidebtn.text('Click to Hide Responses');
+          explanation_area.show();
+          displayResponseComparison(idxA, idxB);
+        })
+
+
+    return $('<div>')
+      .addClass('comparison')
+      .attr({
+          id: name,
+          idxA: idxA,
+          idxB: idxB,
+      })
+      .append(showHideBtn)
+      .append('Compare Responses ' + idxA + ' and ' + idxB + ': ')
+      .append(spanA).append(spanB).append(spanC)
+      .append(explanation_area);
+  }
+
+  const make_metric_tab_button = function (idx) {
+    const tab =
+      $('<button>')
+        .attr({
+          id: 'tab-' + idx,
+          type: 'button'
+        })
+        .text('Response ' + idx)
+        .on('click', function () {
+          moveToTab(idx);
+        });
+    return tab;
+  }
+
+  const make_overall_tab_button = function () {
+    const tab =
+      $('<button>')
+        .attr({
+          id: 'tab-' + 0,
+          type: 'button'
+        })
+        .text('Overall Comparisons')
+        .on('click', function () {
+          moveToTab(0);
+        });
+    return tab;
+  }
+
+  const save_all = function () {
+    save_record.individual = [];
+    save_record.pairwise = [];
+
+    tab_areas.forEach(function (area, idx) {
+      if (idx === 0) return;
+      const metrics = {
+        responseIdx: idx - 1,
+        scores: {},
+      };
+
+      // save scores
+      area.find('.metric').each(function () {
+        const $this = $(this);
+        metrics.scores[$this.attr('name')] = $this.val();
+      })
+
+      // save explanation
+      metrics.explanation = area.find('#explanation').val();
+
+      save_record.individual.push(metrics);
+    })
+
+    // for overall
+    tab_areas[0].find('.comparison').each(function () {
+      const $this = $(this);
+      const idxA = $this.attr('idxA');
+      const idxB = $this.attr('idxB');
+
+      save_record.pairwise.push({
+        responseAIdx: idxA - 1,
+        responseBIdx: idxB - 1,
+        value: parseInt($this.find('.pairwise-threeclass:checked').val()),
+        explanation: $this.find('.pairwise-explanation').val(),
+      })
+      
+    })
+
+    $('#data-save-area').text(JSON.stringify(save_record));
+  }
+
+  const submit_results = function () {
+    save_all();
+
+    // avoid interference by crowd-elements.js
+    $('#tab-area').detach();
+
+    const urlParams = new URLSearchParams(window.location.search)
+
+    // create the form element and point it to the correct endpoint
+    const form = document.createElement('form')
+    form.action = (new URL('mturk/externalSubmit', urlParams.get('turkSubmitTo'))).href
+    form.method = 'POST'
+
+    // attach the assignmentId
+    const inputAssignmentId = document.createElement('input')
+    inputAssignmentId.name = 'assignmentId'
+    inputAssignmentId.value = urlParams.get('assignmentId')
+    inputAssignmentId.hidden = true
+    form.appendChild(inputAssignmentId)
+
+    const inputTime = document.createElement('input')
+    inputTime.name = 'timeTaken'
+    inputTime.value = parseInt(((new Date()).getTime() - startTime.getTime()) / 1000);
+    inputTime.hidden = true
+    form.appendChild(inputTime)
+
+    // attach data I want to send back
+    const inputResults = document.createElement('input')
+    inputResults.name = 'results'
+    inputResults.value = JSON.stringify(save_record)
+    inputResults.hidden = true
+    form.appendChild(inputResults)
+
+    // attach the form to the HTML document and trigger submission
+    document.body.appendChild(form)
+    form.submit()
+  }
+
+  function copyData() {
+    save_all();
+    const data = JSON.stringify(save_record);
+    navigator.clipboard.writeText(data);
+  }
+
+
+  const setup = function () {
+    $('#submit-btn').hide();
+    // add metric tabs
+    data.responses.forEach(function (_, idx) {
+      const tab_area = make_metric_tab_area(idx + 1);
+      tab_areas.push(tab_area);
+      const tab = make_metric_tab_button(idx + 1);
+      buttonBar.append(tab);
+    });
+
+    // add pairwise comparison tab
+    const overall_tab_area = make_overall_tab_area();
+    tab_areas.unshift(overall_tab_area);
+    const overall_tab = make_overall_tab_button();
+    buttonBar.append(overall_tab);
+
+
+    setInterval(function () {
+      const now = new Date();
+      const elapsed_ms = now.getTime() - startTime.getTime();
+      const elapsed_secs = elapsed_ms / 1000;
+      const [elapsed_mins, secs] = [elapsed_secs / 60, elapsed_secs % 60];
+      const [elapsed_hrs, mins] = [elapsed_mins / 60, elapsed_mins % 60];
+      $('#timer').text('Elapsed Time: ' + elapsed_hrs.toFixed(0) + ':' + mins.toFixed(0) + ':' + secs.toFixed(0));
+    }, 1000);
+
+    moveToTab(1);
+  }
+
+  setup();
+</script>

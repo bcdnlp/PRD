@@ -1,6 +1,11 @@
 anthropic
+fschat
+google-cloud-aiplatform
 html2text
 openai
 pandas
+ray
+shortuuid
 tqdm
 yaml
+vertexai

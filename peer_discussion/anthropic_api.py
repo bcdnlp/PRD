@@ -3,7 +3,7 @@ import time
 import anthropic
 import yaml
 
-with open('peer_discussion/config.yml') as f:
+with open('config.yml') as f:
     config = yaml.safe_load(f)
 
 def prompt_formatting(history):
