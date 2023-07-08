@@ -1,6 +1,6 @@
 # PRD: Peer Rank and Discussion Improve Large Language Model based Evaluations
 
-| [Paper]() | [Demo](http://bcdnlp.github.io/PR_LLM_EVAL) |
+| [Paper](https://arxiv.org/pdf/2307.02762.pdf) | [Demo](http://bcdnlp.github.io/PR_LLM_EVAL) |
 
 ## Peer Rank (PR) process:
 
@@ -72,7 +72,14 @@ python discuss_vicuna80.py
 Please cite the following if find our work helpful.
 
 ```bibtex
-(To Be Added)
+@misc{li2023prd,
+      title={PRD: Peer Rank and Discussion Improve Large Language Model based Evaluations},
+      author={Ruosen Li and Teerth Patel and Xinya Du},
+      year={2023},
+      eprint={2307.02762},
+      archivePrefix={arXiv},
+      primaryClass={cs.CL}
+}
 ```
 
 ## Contact

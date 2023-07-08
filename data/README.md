@@ -31,7 +31,7 @@ All data of LFQA is stored in the `experts_pairwise_human_preferences.jsonl` fil
 
 ## Vicuna80
 
-We pulish the `Vicuna80` dataset here. For more details, please refer to the paper. Explanations for files in the `Vicuna80` folder are as follows:
+We pulish the `Vicuna80` dataset here. For more details, please refer to our [paper](https://arxiv.org/pdf/2307.02762.pdf). Explanations for files in the `Vicuna80` folder are as follows:
 
 1. `vicuna_benchmark_human_annotations.csv`
     - This file stores human preference for all human annotations on all questions.
