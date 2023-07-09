@@ -12,6 +12,8 @@
 
 ## Install Dependencies
 
+Please follow the following commands to install dependencies.
+
 ```bash
 # create an environment
 conda create -n prd python=3.8
@@ -23,7 +25,7 @@ pip install -r requirement.txt
 
 ## Datasets
 
-For information about datasets, please refer to the [README](data/README.md) file.
+We publish the dataset `Vicuna80` in the `data` folder. For information about datasets, please refer to the [README](data/README.md) file.
 
 ## Generated Results
 
@@ -35,7 +37,29 @@ Please follow the bash commands to run corresponding parts.
 
 ### Peer Rank
 
-(To Be Added)
+Please enter the `peer_rank` folder by the following command.
+
+```bash
+cd peer_rank/
+```
+
+#### Reviews Generation
+
+Please run the `gen_{reviewer}.sh` scripts to generate reviews for answers from one pair of model. For example,
+
+```bash
+./gen_claude.sh ../data/vicuna80/generations/answer_[Model 1].jsonl ../data/vicuna80/generations/answer_[Model 2].jsonl
+```
+
+To generate reviews for answers from all pairs of models, please run the `gen_{reviewer}_all.sh`. For example,
+
+```bash
+./gen_claude_all.sh
+```
+
+#### Peer Ranking
+
+To run peer ranking, please open the `peer_ranking.ipynb` file by any Jupyter Notebook.
 
 ### Peer Discussion
 

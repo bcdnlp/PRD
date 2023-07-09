@@ -11,4 +11,5 @@ ipython_config.py
 
 # API keys
 keys/
+.obsidian/
 
