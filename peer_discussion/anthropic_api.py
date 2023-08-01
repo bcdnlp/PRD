@@ -23,12 +23,12 @@ def call(history, reviewer_no):
     with open(config['anthropic_key'], 'r') as f:
         api_key = f.read().strip()
     
-    client = anthropic.Client(api_key)
+    client = anthropic.Anthropic(api_key=api_key)
 
     prompt = prompt_formatting(history)
     while True:
         try:
-            response = client.completion(
+            response = client.completions.create(
                            prompt=prompt,
                            stop_sequences=[anthropic.HUMAN_PROMPT],
                            max_tokens_to_sample=500,
@@ -40,7 +40,7 @@ def call(history, reviewer_no):
             time.sleep(2)
             print('Errrrrrrrrrrrrrrrrrr', str(e))
 
-    prediction = response['completion']
+    prediction = response.completion
 
     return prediction
     
